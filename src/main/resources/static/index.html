@@ -14,30 +14,39 @@
             stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
                 stompClient.subscribe('/topic/greetings', function (response) {
-                    console.log(response.body)
-                    showMessage('Server: ' + response.body);
+                    showTopics(response.body);
                 });
+                atualizalist();
             });
         }
 
-        function showMessage(message) {
-            var messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            document.getElementById('messages').innerHTML+=(message+'<br>')
+        function showTopics(obj) {
+            document.getElementById('lista').innerHTML=''
+            topics = JSON.parse(obj);
+            for (let index = 0; index < topics.length; index++) {
+                const element = topics[index];
+                el = `<p>${element.content}</p>`
+                document.getElementById('lista').innerHTML+=el
+            }
         }
 
         function send() {
             var messageInput = document.getElementById('messageInput');
-            var message = messageInput.value;
-            showMessage('You: ' + message);
-            stompClient.send('/app/hello', {}, JSON.stringify({ content: message }));
+            var topics = messageInput.value;
+            stompClient.send('/app/hello', {}, JSON.stringify({ content: topics }));
             messageInput.value = '';
         }
+
+        function atualizalist() {
+            console.log('oi')
+            stompClient.send('/app/resposta', {}, JSON.stringify({}));
+        }
+
     </script>
 </head>
 <body>
     <h1>WebSocket Example</h1>
-    <div id="messages"></div>
+    <div id="lista"></div>
     <input id="messageInput" type="text" placeholder="Type a message...">
     <button onclick="send()">Send</button>
 
